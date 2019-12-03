@@ -3,6 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var MonitorMain = require('./compoent/MonitorMain');
+var ServerInfo = require('./compoent/ServerInfo');
+var MailOptions = require('./compoent/MailOptions');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -37,5 +40,22 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+var errorOptions1 = new MailOptions('948866419@qq.com', '1003395207@qq.com', '工程1', '工程1挂掉了,请尽快修复');
+var restartOptions1 = new MailOptions('948866419@qq.com', '1003395207@qq.com', '工程1', '工程1已恢复');
+var options1 = new ServerInfo(true, 'localhost', '2026', '/', 'GET');
+var errorOptions2 = new MailOptions('948866419@qq.com', '1003395207@qq.com', '工程2', '工程2挂掉了,请尽快修复');
+var restartOptions2 = new MailOptions('948866419@qq.com', '1003395207@qq.com', '工程2', '工程2已恢复');
+var options2 = new ServerInfo(true, 'localhost', '2025', '/', 'GET');
+
+var ay = [{options:options1,restartOptions:restartOptions1,errorOptions:errorOptions1},{options:options2,restartOptions:restartOptions2,errorOptions:errorOptions2}]
+
+//监听
+setInterval(function(){
+  ay.forEach(function(item){
+    new MonitorMain(item.options, item.restartOptions, item.errorOptions);
+  })
+},10000);
+
 
 module.exports = app;
